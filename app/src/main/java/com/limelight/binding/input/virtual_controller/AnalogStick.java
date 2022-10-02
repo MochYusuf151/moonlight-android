@@ -232,6 +232,7 @@ public class AnalogStick extends VirtualControllerElement {
         } else {
             paint.setColor(pressedColor);
         }
+
         canvas.drawCircle(getWidth() / 2, getHeight() / 2, radius_complete, paint);
 
         paint.setColor(getDefaultColor());

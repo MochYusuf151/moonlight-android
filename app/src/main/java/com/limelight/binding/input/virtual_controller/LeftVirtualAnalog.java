@@ -5,26 +5,23 @@
 package com.limelight.binding.input.virtual_controller;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.SystemClock;
 
 import com.limelight.nvstream.input.ControllerPacket;
 
-public class RightAnalogStick extends AnalogStick {
+public class LeftVirtualAnalog extends VirtualAnalog {
     private final Paint paint = new Paint();
 
-    public RightAnalogStick(final VirtualController controller, final Context context) {
-        super(controller, context, EID_RS);
+    public LeftVirtualAnalog(final VirtualController controller, final Context context) {
+        super(controller, context, EID_LS);
 
-        addAnalogStickListener(new AnalogStick.AnalogStickListener() {
+        addVirtualAnalogListener(new VirtualAnalogListener() {
             @Override
             public void onMovement(float x, float y) {
                 VirtualController.ControllerInputContext inputContext =
                         controller.getControllerInputContext();
-                inputContext.rightStickX = (short) (x * 0x7FFE);
-                inputContext.rightStickY = (short) (y * 0x7FFE);
+                inputContext.leftStickX = (short) (x * 0x7FFE);
+                inputContext.leftStickY = (short) (y * 0x7FFE);
 
                 controller.sendControllerInputContext();
             }
@@ -37,7 +34,7 @@ public class RightAnalogStick extends AnalogStick {
             public void onDoubleClick() {
                 VirtualController.ControllerInputContext inputContext =
                         controller.getControllerInputContext();
-                inputContext.inputMap |= ControllerPacket.RS_CLK_FLAG;
+                inputContext.inputMap |= ControllerPacket.LS_CLK_FLAG;
 
                 controller.sendControllerInputContext();
             }
@@ -46,20 +43,10 @@ public class RightAnalogStick extends AnalogStick {
             public void onRevoke() {
                 VirtualController.ControllerInputContext inputContext =
                         controller.getControllerInputContext();
-                inputContext.inputMap &= ~ControllerPacket.RS_CLK_FLAG;
+                inputContext.inputMap &= ~ControllerPacket.LS_CLK_FLAG;
 
                 controller.sendControllerInputContext();
             }
         });
-    }
-
-    @Override
-    protected void onElementDraw(Canvas canvas) {
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(getDefaultStrokeWidth());
-
-        canvas.drawRect(0,0,canvas.getHeight(),canvas.getWidth(), paint);
-        super.onElementDraw(canvas);
     }
 }

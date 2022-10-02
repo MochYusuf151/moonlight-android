@@ -32,6 +32,10 @@
         android:name="android.hardware.type.pc"
         android:required="false"/>
 
+    <uses-feature
+        android:name="android.hardware.sensor.gyroscope"
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
@@ -128,7 +132,7 @@
         <activity
             android:name=".Game"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
-            android:screenOrientation="userLandscape"
+            android:screenOrientation="sensorLandscape"
             android:noHistory="true"
             android:supportsPictureInPicture="true"
             android:resizeableActivity="true"

@@ -50,6 +50,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -166,6 +170,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             connectedToUsbDriverService = false;
         }
     };
+
+    private static SensorManager sensorManager;
+    private static Sensor rotationVectorSensor;
+    private static boolean useGyro = false;
 
     public static final String EXTRA_HOST = "Host";
     public static final String EXTRA_APP_NAME = "AppName";
@@ -480,6 +488,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
 
         if (prefConfig.onscreenController) {
+            // Setup rotation sensor
+            sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+            rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
             // create virtual onscreen controller
             virtualController = new VirtualController(controllerHandler,
                     (FrameLayout)streamView.getParent(),
@@ -1307,13 +1319,13 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                  eventSource == InputDevice.SOURCE_MOUSE_RELATIVE)
         {
             // This case is for mice and non-finger touch devices
-            if (eventSource == InputDevice.SOURCE_MOUSE ||
+            if ((eventSource == InputDevice.SOURCE_MOUSE ||
                     (eventSource & InputDevice.SOURCE_CLASS_POSITION) != 0 || // SOURCE_TOUCHPAD
                     eventSource == InputDevice.SOURCE_MOUSE_RELATIVE ||
                     (event.getPointerCount() >= 1 &&
                             (event.getToolType(0) == MotionEvent.TOOL_TYPE_MOUSE ||
                                     event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS ||
-                                    event.getToolType(0) == MotionEvent.TOOL_TYPE_ERASER)))
+                                    event.getToolType(0) == MotionEvent.TOOL_TYPE_ERASER))))
             {
                 int changedButtons = event.getButtonState() ^ lastButtonState;
 
@@ -2057,5 +2069,21 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     public void onUsbPermissionPromptCompleted() {
         suppressPipRefCount--;
         updatePipAutoEnter();
+    }
+
+    public static SensorManager getSensorManager() {
+        return sensorManager;
+    }
+
+    public static Sensor getRotationVectorSensor() {
+        return rotationVectorSensor;
+    }
+
+    public static boolean isUseGyro() {
+        return useGyro;
+    }
+
+    public static void setUseGyro(boolean useGyro) {
+        Game.useGyro = useGyro;
     }
 }
