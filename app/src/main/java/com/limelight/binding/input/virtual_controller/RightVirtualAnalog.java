@@ -12,13 +12,16 @@ import android.os.SystemClock;
 
 import com.limelight.nvstream.input.ControllerPacket;
 
-public class RightAnalogStick extends AnalogStick {
+public class RightVirtualAnalog extends VirtualAnalog {
     private final Paint paint = new Paint();
 
-    public RightAnalogStick(final VirtualController controller, final Context context) {
+    public RightVirtualAnalog(final VirtualController controller, final Context context) {
         super(controller, context, EID_RS);
 
-        addAnalogStickListener(new AnalogStick.AnalogStickListener() {
+        setUseSensor(true);
+        setSensorSensitivityX(2f);
+        setSensorSensitivityY(2.5f);
+        addVirtualAnalogListener(new VirtualAnalog.VirtualAnalogListener() {
             @Override
             public void onMovement(float x, float y) {
                 VirtualController.ControllerInputContext inputContext =
@@ -51,15 +54,5 @@ public class RightAnalogStick extends AnalogStick {
                 controller.sendControllerInputContext();
             }
         });
-    }
-
-    @Override
-    protected void onElementDraw(Canvas canvas) {
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(getDefaultStrokeWidth());
-
-        canvas.drawRect(0,0,canvas.getHeight(),canvas.getWidth(), paint);
-        super.onElementDraw(canvas);
     }
 }

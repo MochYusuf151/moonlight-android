@@ -14,8 +14,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.limelight.binding.input.virtual_controller.properties.VirtualAnalogProperties;
+import com.limelight.binding.input.virtual_controller.properties.VirtualControllerElementProperties;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class VirtualControllerElement extends View {
     protected static boolean _PRINT_DEBUG_INFORMATION = false;
@@ -38,6 +44,8 @@ public abstract class VirtualControllerElement extends View {
 
     protected VirtualController virtualController;
     protected final int elementId;
+
+    protected VirtualControllerElementProperties otherProperties;
 
     private final Paint paint = new Paint();
 
@@ -321,7 +329,11 @@ public abstract class VirtualControllerElement extends View {
 
 
     public JSONObject getConfiguration() throws JSONException {
-        JSONObject configuration = new JSONObject();
+        JSONObject configuration;
+        if (otherProperties != null)
+            configuration = new JSONObject(otherProperties);
+        else
+            configuration = new JSONObject();
 
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
 
@@ -340,6 +352,12 @@ public abstract class VirtualControllerElement extends View {
         layoutParams.topMargin = configuration.getInt("TOP");
         layoutParams.width = configuration.getInt("WIDTH");
         layoutParams.height = configuration.getInt("HEIGHT");
+
+        try {
+            otherProperties.setValueFromJson(configuration);
+        } catch (Exception e) {
+
+        }
 
         requestLayout();
     }

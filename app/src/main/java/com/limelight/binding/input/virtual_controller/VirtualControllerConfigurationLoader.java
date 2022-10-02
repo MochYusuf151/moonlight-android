@@ -7,8 +7,10 @@ package com.limelight.binding.input.virtual_controller;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.util.DisplayMetrics;
 
+import com.limelight.binding.input.virtual_controller.properties.VirtualAnalogProperties;
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
 
@@ -27,6 +29,14 @@ public class VirtualControllerConfigurationLoader {
     // The default controls are specified using a grid of 128*72 cells at 16:9
     private static int screenScale(int units, int height) {
         return (int) (((float) height / (float) 72) * (float) units);
+    }
+
+    private static int gridScale(int units, int height) {
+        if (units != 0f) {
+            return (int) ((float) units / ((float) height / (float) 72));
+        } else {
+            return 0;
+        }
     }
 
     private static DigitalPad createDigitalPad(
@@ -142,16 +152,22 @@ public class VirtualControllerConfigurationLoader {
         return button;
     }
 
-    private static AnalogStick createLeftStick(
+    private static VirtualAnalog createLeftStick(
             final VirtualController controller,
             final Context context) {
-        return new LeftAnalogStick(controller, context);
+        return new LeftVirtualAnalog(controller, context);
     }
 
-    private static AnalogStick createRightStick(
+//    private static AnalogStick createRightStick(
+//            final VirtualController controller,
+//            final Context context) {
+//        return new RightAnalogStick(controller, context);
+//    }
+
+    private static VirtualAnalog createRightStick(
             final VirtualController controller,
             final Context context) {
-        return new RightAnalogStick(controller, context);
+        return new RightVirtualAnalog(controller, context);
     }
 
 
@@ -177,6 +193,21 @@ public class VirtualControllerConfigurationLoader {
     private static final int ANALOG_R_BASE_Y = 42;
     private static final int ANALOG_SIZE = 26;
 
+    private static int VIRTUAL_ANALOG_R_BASE_X = 0;
+    private static int VIRTUAL_ANALOG_R_BASE_Y = 0;
+    private static int VIRTUAL_ANALOG_R_MAX_X = 0;
+    private static int VIRTUAL_ANALOG_R_MAX_Y = 0;
+    private static float VIRTUAL_ANALOG_R_SIZE = 0.5f;
+    private static int VIRTUAL_ANALOG_R_RADIUS_COMPLETE = 26;
+    private static int VIRTUAL_ANALOG_R_RADIUS_DEAD_ZONE= 8;
+    private static int VIRTUAL_ANALOG_R_RADIUS_ANALOG = 5;
+
+    private static int VIRTUAL_ANALOG_L_BASE_X = 0;
+    private static int VIRTUAL_ANALOG_L_BASE_Y = 0;
+    private static int VIRTUAL_ANALOG_L_MAX_X = 0;
+    private static int VIRTUAL_ANALOG_L_MAX_Y = 0;
+    private static float VIRTUAL_ANALOG_L_SIZE = 0.5f;
+
     private static final int L3_R3_BASE_Y = 60;
 
     private static final int START_X = 83;
@@ -188,6 +219,7 @@ public class VirtualControllerConfigurationLoader {
     public static void createDefaultLayout(final VirtualController controller, final Context context) {
 
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        Point realScreenSize;
         PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context);
 
         // Displace controls on the right by this amount of pixels to account for different aspect ratios
@@ -195,11 +227,41 @@ public class VirtualControllerConfigurationLoader {
 
         int height = screen.heightPixels;
 
+        VIRTUAL_ANALOG_R_BASE_X = gridScale(screen.widthPixels / 2, height);
+        VIRTUAL_ANALOG_R_BASE_Y = 0;
+        VIRTUAL_ANALOG_R_MAX_X = gridScale(screen.widthPixels / 2, height);
+        VIRTUAL_ANALOG_R_MAX_Y = gridScale(screen.heightPixels, height);
+
+        VIRTUAL_ANALOG_L_BASE_X = 0;
+        VIRTUAL_ANALOG_L_BASE_Y = 0;
+        VIRTUAL_ANALOG_L_MAX_X = gridScale(screen.widthPixels / 2, height);
+        VIRTUAL_ANALOG_L_MAX_Y = gridScale(screen.heightPixels, height);
+
         // NOTE: Some of these getPercent() expressions seem like they can be combined
         // into a single call. Due to floating point rounding, this isn't actually possible.
 
         if (!config.onlyL3R3)
         {
+            controller.addElement(createRightStick(controller, context),
+                    screenScale(VIRTUAL_ANALOG_R_BASE_X, height),
+                    screenScale(VIRTUAL_ANALOG_R_BASE_Y, height),
+                    screenScale(VIRTUAL_ANALOG_R_MAX_X, height),
+                    screenScale(VIRTUAL_ANALOG_R_MAX_Y, height),
+                    new VirtualAnalogProperties(
+                        VIRTUAL_ANALOG_R_SIZE
+                    )
+            );
+
+            controller.addElement(createLeftStick(controller, context),
+                    screenScale(VIRTUAL_ANALOG_L_BASE_X, height),
+                    screenScale(VIRTUAL_ANALOG_L_BASE_Y, height),
+                    screenScale(VIRTUAL_ANALOG_L_MAX_X, height),
+                    screenScale(VIRTUAL_ANALOG_L_MAX_Y, height),
+                    new VirtualAnalogProperties(
+                            VIRTUAL_ANALOG_L_SIZE
+                    )
+            );
+
             controller.addElement(createDigitalPad(controller, context),
                     screenScale(DPAD_BASE_X, height),
                     screenScale(DPAD_BASE_Y, height),
@@ -281,19 +343,20 @@ public class VirtualControllerConfigurationLoader {
                     screenScale(TRIGGER_HEIGHT, height)
             );
 
-            controller.addElement(createLeftStick(controller, context),
-                    screenScale(ANALOG_L_BASE_X, height),
-                    screenScale(ANALOG_L_BASE_Y, height),
-                    screenScale(ANALOG_SIZE, height),
-                    screenScale(ANALOG_SIZE, height)
-            );
+//            controller.addElement(createLeftStick(controller, context),
+//                    screenScale(ANALOG_L_BASE_X, height),
+//                    screenScale(ANALOG_L_BASE_Y, height),
+//                    screenScale(ANALOG_SIZE, height),
+//                    screenScale(ANALOG_SIZE, height)
+//            );
 
-            controller.addElement(createRightStick(controller, context),
-                    screenScale(ANALOG_R_BASE_X, height) + rightDisplacement,
-                    screenScale(ANALOG_R_BASE_Y, height),
-                    screenScale(ANALOG_SIZE, height),
-                    screenScale(ANALOG_SIZE, height)
-            );
+//            controller.addElement(createRightStick(controller, context),
+//                    screenScale(ANALOG_R_BASE_X, height) + rightDisplacement,
+//                    screenScale(ANALOG_R_BASE_Y, height),
+//                    screenScale(ANALOG_SIZE, height),
+//                    screenScale(ANALOG_SIZE, height)
+//            );
+
 
             controller.addElement(createDigitalButton(
                     VirtualControllerElement.EID_BACK,
@@ -353,10 +416,11 @@ public class VirtualControllerConfigurationLoader {
     }
 
     public static void loadFromPreferences(final VirtualController controller, final Context context) {
+
         SharedPreferences pref = context.getSharedPreferences(OSC_PREFERENCE, Activity.MODE_PRIVATE);
 
         for (VirtualControllerElement element : controller.getElements()) {
-            String prefKey = ""+element.elementId;
+            String prefKey = "" + element.elementId;
 
             String jsonConfig = pref.getString(prefKey, null);
             if (jsonConfig != null) {

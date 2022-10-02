@@ -149,6 +149,11 @@
             android:positiveButtonText="@string/yes"
             android:negativeButtonText="@string/no"
             />
+        <CheckBoxPreference
+            android:key="checkbox_virtual_controller_only_mode"
+            android:title="@string/title_checkbox_virtual_controller_only_mode"
+            android:summary="@string/summary_checkbox_virtual_controller_only_mode"
+            android:defaultValue="false" />
 
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_host_settings">
